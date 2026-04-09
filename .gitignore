@@ -11,3 +11,5 @@ Thumbs.db
 *.swo
 .vscode/settings.json
 arm-none-eabi-gcc*
+
+.vscode
