@@ -1,0 +1,13 @@
+firmware.elf
+firmware.bin
+firmware.map
+
+*.o
+
+.DS_Store
+Thumbs.db
+
+*.swp
+*.swo
+.vscode/settings.json
+arm-none-eabi-gcc*
