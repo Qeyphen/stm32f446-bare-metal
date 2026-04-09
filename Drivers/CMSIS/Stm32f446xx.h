@@ -132,9 +132,39 @@ typedef struct {
 #define SYSTICK_CTRL_TICKINT      (1UL << 1)
 #define SYSTICK_CTRL_CLKSOURCE    (1UL << 2)
 #define SYSTICK_CTRL_COUNTFLAG    (1UL << 16)
+#define SYSTICK_CTRL_CLKSOURCE    (1UL << 2)
 
 #define GPIOC_BASE          0x40020800UL
 #define GPIOC               ((GPIO_TypeDef *) GPIOC_BASE)
 #define RCC_AHB1ENR_GPIOCEN (1UL << 2)
+
+// DWT (Data Watchpoint and Trace)
+// ARM Cortex-M4 core peripheral — same on every Cortex-M4
+// Reference: ARM Cortex-M4 TRM section 9.2
+#define DWT_BASE 0xE0001000UL
+typedef struct {
+  __IO uint32_t CTRL;
+  __IO uint32_t CYCCNT;
+} DWT_TypeDef;
+
+#define DWT ((DWT_TypeDef *) DWT_BASE)
+
+#define DWT_CTRL_CYCCNTENA    (1UL << 0)
+
+// CoreDebug
+// Must enable CoreDebug before DWT works
+#define CoreDebug_BASE          0xE000EDF0UL
+
+typedef struct {
+    __IO uint32_t DHCSR; 
+    __O  uint32_t DCRSR;
+    __IO uint32_t DCRDR; 
+    __IO uint32_t DEMCR;
+} CoreDebug_TypeDef;
+
+#define CoreDebug   ((CoreDebug_TypeDef *) CoreDebug_BASE)
+
+// CoreDebug_DEMCR bits
+#define CoreDebug_DEMCR_TRCENA  (1UL << 24) // enable DWT and ITM
 
 #endif

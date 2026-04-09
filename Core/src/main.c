@@ -1,56 +1,44 @@
 #include "main.h"
 #include "system_clock.h"
+#include "dwt.h"
 
-static void test1_mco2_output(void)
+volatile uint32_t cycles_per_1000ms = 0;
+volatile uint32_t measured_mhz      = 0;
+
+int main(void)
 {
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
-
-    GPIOC->MODER &= ~(3UL << 18);
-    GPIOC->MODER |=  (2UL << 18);
-
-    GPIOC->AFR[1] &= ~(0xFUL << 4);
-    GPIOC->AFR[1] |=  (0x0UL << 4);
-
-    RCC->CFGR &= ~(7UL << 27);
-    RCC->CFGR |=  (4UL << 27);
-
-    while(1) {}
-}
-
-static void test2_systick_blink(void)
-{
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
-
-    GPIOA->MODER &= ~(3UL << 10);
-    GPIOA->MODER |=  (1UL << 10);
+    SystemClock_Config();
+    DWT_Init();
 
     SysTick->LOAD = 179999;
     SysTick->VAL  = 0;
     SysTick->CTRL = SYSTICK_CTRL_ENABLE | SYSTICK_CTRL_CLKSOURCE;
 
-    uint32_t ms_count = 0;
+    while (!(SysTick->CTRL & SYSTICK_CTRL_COUNTFLAG));
 
-    while(1)
+    uint32_t start = DWT_GetCycles();
+
+    uint32_t tick_count = 0;
+    while (tick_count < 1000)
     {
         if (SysTick->CTRL & SYSTICK_CTRL_COUNTFLAG)
         {
-            ms_count++;
-            if (ms_count >= 1000)
-            {
-                ms_count = 0;
-                if (GPIOA->ODR & (1UL << 5))
-                    GPIOA->BSRR = GPIO_BSRR_BR5;
-                else
-                    GPIOA->BSRR = GPIO_BSRR_BS5;
-            }
+            tick_count++;
         }
     }
-}
 
-int main(void)
-{
-    SystemClock_Config();
+    cycles_per_1000ms = DWT_ElapsedCycles(start);
 
-    // test2_systick_blink();
-    test1_mco2_output();
+    measured_mhz = cycles_per_1000ms / 1000000;
+
+    // expected results
+    // cycles_per_1000ms ≈ 180,000,000
+    // measured_mhz      ≈ 180
+    //
+    // if measured_mhz ≈ 16  -> still on HSI, PLL never switched
+    // if measured_mhz ≈ 8   -> stuck on HSE
+    // if measured_mhz ≈ 90  -> PLLP wrong, dividing by 4 not 2
+    // if measured_mhz ≈ 180 -> correct ✓
+
+    while(1) {}
 }
