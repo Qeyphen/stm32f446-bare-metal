@@ -1,6 +1,6 @@
 .syntax unified
     .cpu cortex-m4
-    .fpu softvfp
+    .fpu fpv4-sp-d16
     .thumb
 
     .global g_pfnVectors
@@ -131,6 +131,14 @@ g_pfnVectors:
     .type   Reset_Handler, %function
 
 Reset_Handler:
+    ldr     r0, =0xE000ED88
+    ldr     r1, [r0]
+    orr     r1, r1, #(0xF << 20)
+    str     r1, [r0]
+    dsb
+    isb
+
+    /* Zero out BSS section */
     ldr     r0, =_sbss
     ldr     r1, =_ebss
     movs    r2, #0
@@ -140,6 +148,8 @@ bss_loop:
     str     r2, [r0], #4
     b       bss_loop
 bss_done:
+
+    /* Copy data section from flash to SRAM */
     ldr     r0, =_sdata
     ldr     r1, =_edata
     ldr     r2, =_sidata

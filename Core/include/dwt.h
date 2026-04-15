@@ -10,17 +10,13 @@ static inline void DWT_Init(void) {
 }
 
 // Reset counter
-static inline void DWT_Reset(void) {
-  DWT->CYCCNT = 0;
-}
+static inline void DWT_Reset(void) { DWT->CYCCNT = 0; }
 
 // Read current cycles
-static inline uint32_t DWT_GetCycles(void) {
-  return DWT->CYCCNT;
-}
+static inline uint32_t DWT_GetCycles(void) { return DWT->CYCCNT; }
 
 static inline uint32_t DWT_ElapsedCycles(uint32_t start) {
-    return DWT->CYCCNT - start;
+  return DWT->CYCCNT - start;
 }
 
 #endif
