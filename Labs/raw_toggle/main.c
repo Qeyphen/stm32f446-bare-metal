@@ -7,7 +7,6 @@ volatile float    ns_per_iter     = 0.0f;
 volatile uint32_t total_cycles    = 0;
 
 #define ITR         1000UL
-#define SYSCLK_HZ   180000000UL
 
 int main(void)
 {
@@ -27,7 +26,7 @@ int main(void)
 
     uint32_t start = DWT_GetCycles();
     for (uint32_t i = 0; i < ITR; i++) {
-        GPIOA->BSRR = (1UL << 5) | (1UL << 21);
+        GPIOA->BSRR = GPIO_BSRR_SET_PIN(5) | GPIO_BSRR_RESET_PIN(5);
     }
     total_cycles = DWT_ElapsedCycles(start);
 

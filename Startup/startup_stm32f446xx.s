@@ -5,6 +5,8 @@
 
     .global g_pfnVectors
     .global Default_Handler
+    .global TIM2_IRQHandler
+    .extern TIM2_IRQHandler
 
     .section .isr_vector,"a",%progbits
     .type g_pfnVectors, %object
@@ -24,6 +26,7 @@ g_pfnVectors:
     .word   Default_Handler
     .word   Default_Handler
     .word   0
+    .word   Default_Handler
     .word   Default_Handler
     .word   Default_Handler
     .word   Default_Handler
@@ -131,6 +134,11 @@ g_pfnVectors:
     .type   Reset_Handler, %function
 
 Reset_Handler:
+    ldr     r0, =0xE000ED08
+    ldr     r1, =g_pfnVectors
+    str     r1, [r0]
+    dsb
+    isb
     ldr     r0, =0xE000ED88
     ldr     r1, [r0]
     orr     r1, r1, #(0xF << 20)
@@ -168,6 +176,3 @@ main_call:
     .type   Default_Handler, %function
 Default_Handler:
     b       Default_Handler
-
-    .weak   TIM2_IRQHandler
-    .thumb_set TIM2_IRQHandler, Default_Handler

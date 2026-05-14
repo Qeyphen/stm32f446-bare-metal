@@ -94,4 +94,8 @@ raw-toggle-off:
 	$(MAKE) clean
 	$(MAKE) LAB=Labs/raw_toggle/main.c ART=0 OPT_LVL=$(OPT_LVL) flash
 
+isr-latency:
+	$(MAKE) clean
+	$(MAKE) LAB=Labs/isr_latency/main.c ART=1 OPT_LVL=$(OPT_LVL) flash
+
 .PHONY: all clean flash format format-check raw-toggle-on raw-toggle-off
